@@ -13,9 +13,11 @@ const WATERFALL_DIALOG = 'waterfallDialog';
 
 class CurtisDialog extends CancelAndHelpDialog {
     constructor(id) {
-        super(id || 'bookingDialog');
+        super(id || 'curtisDialog');
 
-        this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
+        this.addDialog(new TextPrompt(TEXT_PROMPT))
+            .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
+            .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
                 this.goatStep.bind(this),
                 this.confirmStep.bind(this),
                 this.finalStep.bind(this)
@@ -30,10 +32,10 @@ class CurtisDialog extends CancelAndHelpDialog {
     async goatStep(stepContext) {
         const curtisDetails = stepContext.options;
 
-        if (!curtisDetails.goats) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'How many goats were you expecting in your ninjas?' });
+        if (!curtisDetails.quantity) {
+            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'How many goats will you take on your quest to defeat the ninjas?' });
         } else {
-            return await stepContext.next(curtisDetails.goats);
+            return await stepContext.next(curtisDetails.quantity);
         }
     }
 
@@ -76,7 +78,7 @@ class CurtisDialog extends CancelAndHelpDialog {
 
         // Capture the results of the previous step
         bookingDetails.travelDate = stepContext.result;
-        const msg = `Please confirm, I have you traveling to: ${ bookingDetails.destination } from: ${ bookingDetails.origin } on: ${ bookingDetails.travelDate }.`;
+        const msg = `Please confirm, you have  ${ bookingDetails.quantity } goats.`;
 
         // Offer a YES/NO prompt.
         return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });

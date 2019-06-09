@@ -61,7 +61,7 @@ class MainDialog extends ComponentDialog {
             return await stepContext.next();
         }
 
-        return await stepContext.prompt('TextPrompt', { prompt: 'What can I help you with today?\nSay something like "Curtis where are all the goats?"' });
+        return await stepContext.prompt('TextPrompt', { prompt: 'What can I help you with today?\nSay something like "Start the Ninjas Quest"' });
     }
 
     /**
@@ -84,7 +84,7 @@ class MainDialog extends ComponentDialog {
         // will have multiple different intents each corresponding to starting a different child dialog.
 
         // Run the BookingDialog giving it whatever details we have from the LUIS call, it will fill out the remainder.
-        return await stepContext.beginDialog('bookingDialog', bookingDetails);
+        return await stepContext.beginDialog('curtisDialog', bookingDetails);
     }
 
     /**
