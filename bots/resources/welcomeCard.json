@@ -5,7 +5,7 @@
   "body": [
     {
       "type": "Image",
-      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtB3AwMUeNoq4gUBGe6Ocj8kyh3bXa9ZbV7u1fVKQoyKFHdkqU",
+      "url": "https://moneyinc.com/wp-content/uploads/2017/12/Craig-Jelinek.jpg",
       "size": "stretch"
     },
     {
@@ -13,7 +13,7 @@
       "spacing": "medium",
       "size": "default",
       "weight": "bolder",
-      "text": "Welcome to Bot Framework!",
+      "text": "Welcome to ask Craig!",
       "wrap": true,
       "maxLines": 0
     },
@@ -21,7 +21,7 @@
       "type": "TextBlock",
       "size": "default",
       "isSubtle": "yes",
-      "text": "Now that you have successfully run your bot, follow the links in this Adaptive Card to expand your knowledge of Bot Framework.",
+      "text": "Start your journey today and ask me anything about deli menus, office maps, or warehouse hours.",
       "wrap": true,
       "maxLines": 0
     }
