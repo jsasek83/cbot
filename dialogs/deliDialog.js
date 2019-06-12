@@ -38,7 +38,7 @@ class DeliDialog extends CancelAndHelpDialog {
         console.log("STEP: Execute deli date step");
        
         if (!luisDetails.date) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'When are you planning to visit the deli?' });
+            return await stepContext.next(new Date(Date.now()));
         } else {
             return await stepContext.next(luisDetails.date);
         }
