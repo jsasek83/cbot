@@ -19,7 +19,8 @@ class DeliDialog extends CancelAndHelpDialog {
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
                 this.dateStep.bind(this),
-                this.locationStep.bind(this)
+                this.locationStep.bind(this),
+                this.finalStep.bind(this)
             ]));
 
         this.initialDialogId = WATERFALL_DIALOG;
@@ -29,6 +30,9 @@ class DeliDialog extends CancelAndHelpDialog {
      * If a destination city has not been provided, prompt for one.
      */
     async dateStep(stepContext) {
+
+        console.log("STEPCONTEXT :: " + JSON.stringify(stepContext.options));
+
         const luisDetails = stepContext.options;
 
         console.log("STEP: Execute deli date step");
@@ -45,11 +49,12 @@ class DeliDialog extends CancelAndHelpDialog {
      */
     async locationStep(stepContext) {
         const luisDetails = stepContext.options;
+        luisDetails.date = stepContext.result;
 
         console.log("STEP: Execute deli location step");
 
         if (!luisDetails.location) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'What Costco building?' });
+            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'Which Costco building?' });
         } else {
             return await stepContext.next(luisDetails.location);
         }
@@ -60,9 +65,14 @@ class DeliDialog extends CancelAndHelpDialog {
      * It wraps up the sample "book a flight" interaction with a simple confirmation.
      */
     async finalStep(stepContext) {
+        const luisDetails = stepContext.options;
+        luisDetails.location = stepContext.result;
+
+        console.log("DETAILS :: " + JSON.stringify(luisDetails));
+
         // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
         if (stepContext.result) {
-            const result = stepContext.result;
+            const result = luisDetails;
             // Now we have all the booking details.
 
             // This is where calls to the booking AOU service or database would go.

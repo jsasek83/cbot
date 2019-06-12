@@ -47,7 +47,7 @@ class LuisHelper {
 
                 luisDetails.date = LuisHelper.parseDatetimeEntity(recognizerResult);
                 luisDetails.menuType = LuisHelper.parseSimpleEntity(recognizerResult,"menuType");
-                luisDetails.location = LuisHelper.parseCompositeEntity(recognizerResult, "RestaurantReservation", "PlaceName");
+                luisDetails.location = LuisHelper.parseSimpleEntity(recognizerResult, "number");
 
             }
 
