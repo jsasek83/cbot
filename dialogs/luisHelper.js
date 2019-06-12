@@ -10,7 +10,7 @@ class LuisHelper {
      * @param {TurnContext} context
      */
     static async executeLuisQuery(logger, context) {
-        const bookingDetails = {};
+        const luisDetails = {};
 
         try {
             const recognizer = new LuisRecognizer({
@@ -23,7 +23,7 @@ class LuisHelper {
 
             const intent = LuisRecognizer.topIntent(recognizerResult);
 
-            bookingDetails.intent = intent;
+            luisDetails.intent = intent;
 
             // if (intent === 'Book_flight') {
             //     // We need to get the result from the LUIS JSON which at every level returns an array
@@ -36,17 +36,28 @@ class LuisHelper {
             //     bookingDetails.travelDate = LuisHelper.parseDatetimeEntity(recognizerResult);
             // }
 
-            if (intent === 'Curtis') {
-                bookingDetails.curtisAction = LuisHelper.parseSimpleEntity(recognizerResult, 'CurtisAction');
-                bookingDetails.quantity = LuisHelper.parseNumber(recognizerResult, 'builtin.number');
-            }else{
-                bookingDetails.quantity = LuisHelper.parseNumber(recognizerResult, 'builtin.number');
+            console.log("====Recognizer Results=====");
+            console.log(JSON.stringify(recognizerResult.entities));
+
+            if (intent === 'findMenu') {
+
+                /* Samples Data
+                {"$instance":{"RestaurantReservation_Time":[{"startIndex":19,"endIndex":24,"score":0.6839417,"text":"today","type":"RestaurantReservation.Time"}],"datetime":[{"startIndex":19,"endIndex":24,"text":"today","type":"builtin.datetimeV2.date"}]},"RestaurantReservation_Time":["today"],"datetime":[{"type":"date","timex":["2019-06-12"]}]}
+                */
+
+                luisDetails.date = LuisHelper.parseDatetimeEntity(recognizerResult);
+                luisDetails.menuType = LuisHelper.parseSimpleEntity(recognizerResult,"menuType");
+                luisDetails.location = LuisHelper.parseCompositeEntity(recognizerResult, "RestaurantReservation", "PlaceName");
+
             }
+
+            console.log("====LUIS DETAILS=====");
+            console.log(JSON.stringify(luisDetails));
 
         } catch (err) {
             logger.warn(`LUIS Exception: ${ err } Check your LUIS configuration`);
         }
-        return bookingDetails;
+        return luisDetails;
     }
 
     static parseNumber(result, simpleName) {

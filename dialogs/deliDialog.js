@@ -18,9 +18,8 @@ class DeliDialog extends CancelAndHelpDialog {
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
-                this.goatStep.bind(this),
-                this.confirmStep.bind(this),
-                this.finalStep.bind(this)
+                this.dateStep.bind(this),
+                this.locationStep.bind(this)
             ]));
 
         this.initialDialogId = WATERFALL_DIALOG;
@@ -29,72 +28,54 @@ class DeliDialog extends CancelAndHelpDialog {
     /**
      * If a destination city has not been provided, prompt for one.
      */
-    async goatStep(stepContext) {
-        const curtisDetails = stepContext.options;
+    async dateStep(stepContext) {
+        const luisDetails = stepContext.options;
 
-        if (!curtisDetails.quantity) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'How many goats will you take on your quest to defeat the ninjas?' });
+        console.log("STEP: Execute deli date step");
+       
+        if (!luisDetails.date) {
+            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'When are you planning to visit the deli?' });
         } else {
-            return await stepContext.next(curtisDetails.quantity);
+            return await stepContext.next(luisDetails.date);
         }
     }
 
     /**
-     * If an origin city has not been provided, prompt for one.
+     * If a destination city has not been provided, prompt for one.
      */
-    async originStep(stepContext) {
-        const bookingDetails = stepContext.options;
+    async locationStep(stepContext) {
+        const luisDetails = stepContext.options;
 
-        // Capture the response to the previous step's prompt
-        bookingDetails.destination = stepContext.result;
-        if (!bookingDetails.origin) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'From what city will you be travelling?' });
+        console.log("STEP: Execute deli location step");
+
+        if (!luisDetails.location) {
+            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'What Costco building?' });
         } else {
-            return await stepContext.next(bookingDetails.origin);
+            return await stepContext.next(luisDetails.location);
         }
     }
 
     /**
-     * If a travel date has not been provided, prompt for one.
-     * This will use the DATE_RESOLVER_DIALOG.
-     */
-    async travelDateStep(stepContext) {
-        const bookingDetails = stepContext.options;
-
-        // Capture the results of the previous step
-        bookingDetails.origin = stepContext.result;
-        if (!bookingDetails.travelDate || this.isAmbiguous(bookingDetails.travelDate)) {
-            return await stepContext.beginDialog(DATE_RESOLVER_DIALOG, { date: bookingDetails.travelDate });
-        } else {
-            return await stepContext.next(bookingDetails.travelDate);
-        }
-    }
-
-    /**
-     * Confirm the information the user has provided.
-     */
-    async confirmStep(stepContext) {
-        const bookingDetails = stepContext.options;
-
-        // Capture the results of the previous step
-        bookingDetails.travelDate = stepContext.result;
-        const msg = `Please confirm, you have  ${ bookingDetails.quantity } goats.`;
-
-        // Offer a YES/NO prompt.
-        return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });
-    }
-
-    /**
-     * Complete the interaction and end the dialog.
+     * This is the final step in the main waterfall dialog.
+     * It wraps up the sample "book a flight" interaction with a simple confirmation.
      */
     async finalStep(stepContext) {
-        if (stepContext.result === true) {
-            const bookingDetails = stepContext.options;
+        // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
+        if (stepContext.result) {
+            const result = stepContext.result;
+            // Now we have all the booking details.
 
-            return await stepContext.endDialog(bookingDetails);
+            // This is where calls to the booking AOU service or database would go.
+
+            // If the call to the booking service was successful tell the user.
+            const timeProperty = new TimexProperty(result.date);
+            const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
+            const msg = `Searching our database for menus at ${ result.location } on ${ travelDateMsg }.`;
+            await stepContext.context.sendActivity(msg);
         } else {
-            return await stepContext.endDialog();
+            await stepContext.context.sendActivity('Feel free to ask me something about warehouse hours or office locations.');
         }
+        return await stepContext.endDialog();
     }
 
     isAmbiguous(timex) {
