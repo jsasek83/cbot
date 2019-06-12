@@ -7,6 +7,7 @@ const { DeliDialog } = require('./deliDialog');
 const { LuisHelper } = require('./luisHelper');
 const { CardFactory } = require('botbuilder-core');
 const WelcomeCard = require('../bots/resources/welcomeCard.json');
+const GratitudeCard = require('../bots/resources/gratitudeCard.json');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const DELI_DIALOG = 'deliDialog';
@@ -86,6 +87,11 @@ class MainDialog extends ComponentDialog {
 
             const welcomeCard = CardFactory.adaptiveCard(WelcomeCard);
             return await stepContext.context.sendActivity({ attachments: [welcomeCard] });
+
+        }else if(luisDetails.intent == "gratitude"){
+
+            const gratCard = CardFactory.adaptiveCard(GratitudeCard);
+            return await stepContext.context.sendActivity({ attachments: [gratCard] });
 
         }
 
