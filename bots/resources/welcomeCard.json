@@ -24,23 +24,22 @@
       "text": "Start your journey today and ask me anything about deli menus, office maps, or warehouse hours.",
       "wrap": true,
       "maxLines": 0
-    }
+    } 
   ],
   "actions": [
     {
-      "type": "Action.OpenUrl",
-      "title": "Get an overview",
-      "url": "https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0"
+      "type": "Action.Submit",
+      "title": "What's on the menu today?",
+      "data": {
+        "query": "What's on the menu today?"
+      }
     },
     {
-      "type": "Action.OpenUrl",
-      "title": "Ask a question",
-      "url": "https://stackoverflow.com/questions/tagged/botframework"
-    },
-    {
-      "type": "Action.OpenUrl",
-      "title": "Learn how to deploy",
-      "url": "https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-deploy-azure?view=azure-bot-service-4.0"
+      "type": "Action.Submit",
+      "title": "Where's office room 7206?",
+      "data": {
+        "query": "Where's office room 7206?"
+      }
     }
   ]
 }
