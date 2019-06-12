@@ -4,11 +4,6 @@
   "version": "1.0",
   "body": [
     {
-      "type": "Image",
-      "url": "https://moneyinc.com/wp-content/uploads/2017/12/Craig-Jelinek.jpg",
-      "size": "stretch"
-    },
-    {
       "type": "TextBlock",
       "spacing": "medium",
       "size": "default",
