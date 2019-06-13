@@ -18,7 +18,7 @@
         "botbuilder-dialogs": "^4.4.0",
         "cheerio": "^1.0.0-rc.3",
         "dotenv": "^6.1.0",
-        "node-fetch": "^2.6.0",
+        "request": "^2.88.0",
         "restify": "^7.2.3"
     },
     "devDependencies": {

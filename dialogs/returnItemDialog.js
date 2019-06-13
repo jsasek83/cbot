@@ -5,6 +5,8 @@ const { TimexProperty } = require('@microsoft/recognizers-text-data-types-timex-
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DateResolverDialog } = require('./dateResolverDialog');
+const { CardFactory } = require('botbuilder-core');
+const HeroCard = require('../bots/resources/heroCard.json');
 
 const CONFIRM_PROMPT = 'confirmPrompt';
 const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
@@ -40,7 +42,7 @@ class ReturnItemDialog extends CancelAndHelpDialog {
         console.log("STEP: Execute return item step");
        
         if (!luisDetails.item) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'Which item would you like to return?' });
+            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'Great! Please describe the item and look it up in your purchase history' });
         } else {
             return await stepContext.next(luisDetails.item);
         }
@@ -53,10 +55,53 @@ class ReturnItemDialog extends CancelAndHelpDialog {
 
         const luisDetails = stepContext.options;
         luisDetails.item = stepContext.result;
-        
+
         console.log("STEP: Execute return confirm item step");
 
         var msg = "Is the correct item you plan to return?";
+
+        let request = require('request');
+        let cheerio = require('cheerio');
+
+        function doRequest(options) {
+            return new Promise(function (resolve, reject) {
+            request(options, function (error, res, body) {
+                if (!error && res.statusCode == 200) {
+                resolve(body);
+                } else {
+                reject(error);
+                }
+            });
+            });
+        }
+
+        var options = {
+            url : "https://www.costco.com/CatalogSearch?dept=All&keyword=" + luisDetails.item,
+            headers : {
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+                "accept-language": "en-US,en;q=0.9",
+                "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Mobile Safari/537.36"
+            }
+        }
+    
+        let res = await doRequest(options);
+    
+        const $ = cheerio.load(res);
+    
+        console.log($('.caption .caption .description').first().text().trim());
+        console.log($('.thumbnail .product-img-holder img').first().attr('src').trim());
+
+        var desc = $('.caption .caption .description').first().text().trim();
+        var imgUrl = $('.thumbnail .product-img-holder img').first().attr('src').trim();
+
+        let heroCard = CardFactory.adaptiveCard(HeroCard);
+
+        console.log("HERRO :: " + JSON.stringify(heroCard));
+
+        heroCard.content.body[0].url = imgUrl;
+        heroCard.content.body[1].text = desc;
+
+        await stepContext.context.sendActivity({ attachments: [heroCard] });
        
         return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });
     }
@@ -66,6 +111,10 @@ class ReturnItemDialog extends CancelAndHelpDialog {
      */
     async quantityStep(stepContext) {
         const luisDetails = stepContext.options;
+
+        if (stepContext.result === false) {
+            return await stepContext.endDialog(luisDetails);
+        }
 
         console.log("STEP: Execute return quantity step");
 
