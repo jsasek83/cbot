@@ -5,6 +5,8 @@ const { TimexProperty } = require('@microsoft/recognizers-text-data-types-timex-
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DateResolverDialog } = require('./dateResolverDialog');
+const { CardFactory } = require('botbuilder-core');
+const LunchCard = require('../bots/resources/lunchCard.json');
 
 const CONFIRM_PROMPT = 'confirmPrompt';
 const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
@@ -80,8 +82,55 @@ class DeliDialog extends CancelAndHelpDialog {
             // If the call to the booking service was successful tell the user.
             const timeProperty = new TimexProperty(result.date);
             const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
+
+            const { MongoDbHelper } = require('./mongoDbHelper');
+
+            var mh = new MongoDbHelper();
+
             const msg = `Searching our database for menus at ${ result.location } for ${ travelDateMsg }.`;
-            await stepContext.context.sendActivity(msg);
+            stepContext.context.sendActivity(msg);
+
+            var dateString = "";
+            if(travelDateMsg.toLowerCase().indexOf('toda') > -1){
+                dateString += new Date(Date.now()).getMonth() + 1;
+                dateString += "/";
+                dateString += new Date(Date.now()).getDate();
+                dateString += "/";
+                dateString += new Date(Date.now()).getFullYear();
+            }else if(travelDateMsg.toLowerCase().indexOf('tomorr') > -1){
+                var tomorrowDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+                dateString += tomorrowDate.getMonth() + 1;
+                dateString += "/";
+                dateString += tomorrowDate.getDate();
+                dateString += "/";
+                dateString += tomorrowDate.getFullYear();
+            }
+
+            var buildingNumber = String(result.location).match(/\d+/)[0];
+            var query = {"date" : dateString, "location" : {$regex: buildingNumber}};
+
+            console.log("DELI QUERY :: " + JSON.stringify(query));
+
+            var data = await mh.queryDeli(query);
+
+            if(data == null){
+                await stepContext.context.sendActivity("Sorry I couldn't find any data for that location and time, please try again");
+            }else{
+
+                let lunchCard = CardFactory.adaptiveCard(LunchCard);
+    
+                console.log("LUNCH CARD :: " + JSON.stringify(lunchCard));
+
+                var lunchItems = [];
+                for(var i=0;i<data.menuItems.length;i++){
+                    lunchItems.push({"title" : data.menuItems[i].type, "value" : data.menuItems[i].name});
+                }
+        
+                lunchCard.content.body[0].facts = lunchItems;
+        
+                return await stepContext.context.sendActivity({ attachments: [lunchCard] });
+            }
+
         } else {
             await stepContext.context.sendActivity('Feel free to ask me something about warehouse hours or office locations.');
         }

@@ -22,6 +22,9 @@ class MongoDbHelper  {
                 const db = client.db("kraken");
                 let collection = db.collection('deliMenus');
                 let res = await collection.findOne(queryString);
+
+                console.log("QUERY RESPONSE :: " + JSON.stringify(res));
+
                 return res;
             } catch (err) {
             } finally {
