@@ -1,39 +1,26 @@
 
-let request = require('request');
-let cheerio = require('cheerio');
 
-function doRequest(options) {
-    return new Promise(function (resolve, reject) {
-      request(options, function (error, res, body) {
-        if (!error && res.statusCode == 200) {
-          resolve(body);
-        } else {
-          reject(error);
-        }
-      });
-    });
-  }
-  
-  // Usage:
-  
-  async function main() {
 
-    var options = {
-        url : "https://www.costco.com/CatalogSearch?dept=All&keyword=soccer",
-        headers : {
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
-            "accept-language": "en-US,en;q=0.9",
-            "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Mobile Safari/537.36"
-        }
-    }
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+var ObjectId = require('mongodb').ObjectID;
+var url = 'mongodb://kraken-mongo:yBuLYi3NWSngoRKAsnftM4pizdwh4GEXVQSQhS1S9tqMh5XU3xfYobJ5cg81gkQh8B9zuoXBR3QP3lSQOQ5GAA%3D%3D@kraken-mongo.documents.azure.com:10255/?ssl=true';
 
-    let res = await doRequest(options);
+var insertDocument = function(db, callback) {
+db.collection('feedback').insertOne( {
+        "id": "JakesFeedback",
+        "feedback": "Craig Rocks!",
+        "sentiment": "positive"
+    }, function(err, result) {
+    assert.equal(err, null);
+    console.log("Inserted a document into the families collection.");
+    callback();
+});
+};
 
-    const $ = cheerio.load(res);
+MongoClient.connect(url, function(err, client) {
+    var db = client.db('kraken');
+    insertDocument(db, function() {
+                client.close();
 
-    console.log($('.caption .caption .description').first().text().trim());
-    console.log($('.thumbnail .product-img-holder img').first().attr('src').trim());
-
-  }
-  
-  main();
+})});

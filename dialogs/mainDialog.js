@@ -9,6 +9,7 @@ const { LuisHelper } = require('./luisHelper');
 const { CardFactory } = require('botbuilder-core');
 const WelcomeCard = require('../bots/resources/welcomeCard.json');
 const GratitudeCard = require('../bots/resources/gratitudeCard.json');
+const HeroCard = require('../bots/resources/heroCard.json');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const DELI_DIALOG = 'deliDialog';
@@ -68,6 +69,63 @@ class MainDialog extends ComponentDialog {
         return await stepContext.prompt('TextPrompt', { prompt: 'What can I help you with today?\nSay something like "Start the Ninjas Quest"' });
     }
 
+    async translateRequest(query, stepContext){
+
+        const request = require('request');
+        const uuidv4 = require('uuid/v4');
+
+        let options = {
+            method: 'POST',
+            baseUrl: 'https://api.cognitive.microsofttranslator.com/',
+            url: 'translate',
+            qs: {
+            'api-version': '3.0',
+            'to': ['en']
+            },
+            headers: {
+            'Ocp-Apim-Subscription-Key': "e08cdf27666143aaba6ecf70eeb8922c",
+            'Content-type': 'application/json',
+            'X-ClientTraceId': uuidv4().toString()
+            },
+            body: [{
+                'text':query 
+            }],
+            json: true,
+        };
+
+        function doRequest(options) {
+            return new Promise(function (resolve, reject) {
+              request(options, function (error, res, body) {
+                if (!error && res.statusCode == 200) {
+                  resolve(body);
+                } else {
+                  reject(error);
+                }
+              });
+            });
+        }
+
+        try {
+            var body = await doRequest(options);
+            console.log(JSON.stringify(body));
+
+            if(body[0].detectedLanguage.language != 'en'){
+                console.log("TRANSLATION REQUIRED :: " + body[0].detectedLanguage.language);
+                stepContext.context.sendActivity("Translated your question to \" " + String(body[0].translations[0].text).trim() + "\"");
+                return String(body[0].translations[0].text);
+            }
+
+            return query;
+        } catch (error) {
+            console.log("TRANSLATION ERROR!!" + error);
+
+            return query;
+        }
+
+        return query;
+
+    }
+
     /**
      * Second step in the waterall.  This will use LUIS to attempt to extract the origin, destination and travel dates.
      * Then, it hands off to the bookingDialog child dialog to collect any remaining details.
@@ -82,6 +140,10 @@ class MainDialog extends ComponentDialog {
         } catch (error) {
             
         }
+
+        stepContext.context.activity.text = await this.translateRequest(stepContext.context.activity.text, stepContext);
+
+        console.log("TEXT QUERY :: " + stepContext.context.activity.text);
 
         if (process.env.LuisAppId && process.env.LuisAPIKey && process.env.LuisAPIHostName) {
             // Call LUIS and gather any potential booking details.
@@ -107,6 +169,11 @@ class MainDialog extends ComponentDialog {
         }else if(luisDetails.intent == "returnitem"){
 
             return await stepContext.beginDialog('returnItemDialog', luisDetails);
+
+        }else if(luisDetails.intent == "laugh"){
+
+            const heroCard = CardFactory.adaptiveCard(HeroCard);
+            return await stepContext.context.sendActivity({ attachments: [heroCard] });
 
         }
 
