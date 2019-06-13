@@ -77,10 +77,9 @@ class NavigationDialog extends CancelAndHelpDialog {
       await stepContext.context.sendActivity({ attachments: [heroCard] });
     } else {
       await stepContext.context.sendActivity(
-        `Oof. I couldn\'t directions to ${destination}.`
+        `Oof. I couldn\'t get directions to ${destination}.`
       );
     }
-
     return await stepContext.endDialog();
   }
 
