@@ -25,6 +25,7 @@
     {
       "type": "Action.Submit",
       "title": "What's on the menu today?",
+      "value":"What's on the menu today?",
       "data": {
         "query": "What's on the menu today?"
       }

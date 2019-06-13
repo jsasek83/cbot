@@ -87,3 +87,11 @@ server.post('/api/messages', (req, res) => {
         await bot.run(turnContext);
     });
 });
+
+// Listen for incoming notifications and send proactive messages to users.
+server.get('/api/notify', async (req, res) => {
+    for (let conversationReference of Object.values(conversationReferences)) {
+        await adapter.continueConversation(conversationReference, async turnContext => {
+            await turnContext.sendActivity('proactive hello');
+        });
+}});

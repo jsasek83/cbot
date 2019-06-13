@@ -4,6 +4,7 @@
 const { TimexProperty } = require('@microsoft/recognizers-text-data-types-timex-expression');
 const { ComponentDialog, DialogSet, DialogTurnStatus, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { DeliDialog } = require('./deliDialog');
+const { ReturnItemDialog } = require('./returnItemDialog');
 const { LuisHelper } = require('./luisHelper');
 const { CardFactory } = require('botbuilder-core');
 const WelcomeCard = require('../bots/resources/welcomeCard.json');
@@ -11,6 +12,7 @@ const GratitudeCard = require('../bots/resources/gratitudeCard.json');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const DELI_DIALOG = 'deliDialog';
+const RETURN_ITEM_DIALOG = 'returnItemDialog';
 
 class MainDialog extends ComponentDialog {
     constructor(logger) {
@@ -27,6 +29,7 @@ class MainDialog extends ComponentDialog {
         // This is a sample "book a flight" dialog.
         this.addDialog(new TextPrompt('TextPrompt'))
             .addDialog(new DeliDialog(DELI_DIALOG))
+            .addDialog(new ReturnItemDialog(RETURN_ITEM_DIALOG))
             .addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
                 this.actStep.bind(this)
             ]));
@@ -72,6 +75,14 @@ class MainDialog extends ComponentDialog {
     async actStep(stepContext) {
         let luisDetails = {};
 
+        try {
+            if(stepContext.context.activity.value.query){
+                stepContext.context.activity.text = stepContext.context.activity.value.query;
+            }
+        } catch (error) {
+            
+        }
+
         if (process.env.LuisAppId && process.env.LuisAPIKey && process.env.LuisAPIHostName) {
             // Call LUIS and gather any potential booking details.
             // This will attempt to extract the origin, destination and travel date from the user's message
@@ -93,9 +104,11 @@ class MainDialog extends ComponentDialog {
             const gratCard = CardFactory.adaptiveCard(GratitudeCard);
             return await stepContext.context.sendActivity({ attachments: [gratCard] });
 
+        }else if(luisDetails.intent == "returnitem"){
+
+            return await stepContext.beginDialog('returnItemDialog', luisDetails);
+
         }
-
-
 
 
         // In this sample we only have a single intent we are concerned with. However, typically a scenario
