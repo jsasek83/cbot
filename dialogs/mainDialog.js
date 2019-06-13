@@ -5,6 +5,7 @@ const { TimexProperty } = require('@microsoft/recognizers-text-data-types-timex-
 const { ComponentDialog, DialogSet, DialogTurnStatus, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { DeliDialog } = require('./deliDialog');
 const { ReturnItemDialog } = require('./returnItemDialog');
+const { NavigationDialog } = require('./navigationDialog');
 const { LuisHelper } = require('./luisHelper');
 const { CardFactory } = require('botbuilder-core');
 const WelcomeCard = require('../bots/resources/welcomeCard.json');
@@ -14,6 +15,7 @@ const HeroCard = require('../bots/resources/heroCard.json');
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const DELI_DIALOG = 'deliDialog';
 const RETURN_ITEM_DIALOG = 'returnItemDialog';
+const NAVIGATION_DIALOG = 'navigationDialog';
 
 class MainDialog extends ComponentDialog {
     constructor(logger) {
@@ -31,6 +33,7 @@ class MainDialog extends ComponentDialog {
         this.addDialog(new TextPrompt('TextPrompt'))
             .addDialog(new DeliDialog(DELI_DIALOG))
             .addDialog(new ReturnItemDialog(RETURN_ITEM_DIALOG))
+            .addDialog(new NavigationDialog(NAVIGATION_DIALOG))
             .addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
                 this.actStep.bind(this)
             ]));
@@ -175,6 +178,9 @@ class MainDialog extends ComponentDialog {
             const heroCard = CardFactory.adaptiveCard(HeroCard);
             return await stepContext.context.sendActivity({ attachments: [heroCard] });
 
+        } else if (luisDetails.intent === "navigation") {
+          // return await stepContext.beginDialog('deliDialog', luisDetails);
+          console.log('hi')
         }
 
 

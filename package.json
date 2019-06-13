@@ -16,6 +16,7 @@
         "@microsoft/recognizers-text-data-types-timex-expression": "^1.1.4",
         "botbuilder": "^4.4.0",
         "botbuilder-ai": "^4.4.0",
+        "botbuilder-core": "^4.4.0",
         "botbuilder-dialogs": "^4.4.0",
         "cheerio": "^1.0.0-rc.3",
         "dotenv": "^6.1.0",
