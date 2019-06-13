@@ -1,0 +1,56 @@
+{
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "FactSet",
+            "facts": [
+                {
+                    "title": "Entree",
+                    "value": ""
+                },
+                {
+                    "title": "Starch",
+                    "value": ""
+                },
+                {
+                    "title": "Vegetable",
+                    "value": ""
+                },
+                {
+                    "title": "Protein Choice",
+                    "value": ""
+                },
+                {
+                    "title": "Misc.",
+                    "value": ""
+                },
+                {
+                    "title": "Soup",
+                    "value": ""
+                },
+                {
+                    "title": "Pizza",
+                    "value": ""
+                },
+                {
+                    "title": "Hot Sandwich",
+                    "value": ""
+                },
+                {
+                    "title": "Specialty Burger",
+                    "value": ""
+                },
+                {
+                    "title": "Carver",
+                    "value": ""
+                },
+                {
+                    "title": "Display Cooking",
+                    "value": ""
+                }
+            ]
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.0"
+}
