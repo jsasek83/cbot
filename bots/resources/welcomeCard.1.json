@@ -1,0 +1,41 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "body": [
+    {
+      "type": "TextBlock",
+      "spacing": "medium",
+      "size": "default",
+      "weight": "bolder",
+      "text": "Welcome to ask Craig!",
+      "wrap": true,
+      "maxLines": 0
+    },
+    {
+      "type": "TextBlock",
+      "size": "default",
+      "isSubtle": "yes",
+      "text": "Start your journey today and ask me anything about deli menus, office maps, or warehouse hours.",
+      "wrap": true,
+      "maxLines": 0
+    } 
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "What's on the menu today?",
+      "value":"What's on the menu today?",
+      "data": {
+        "query": "What's on the menu today?"
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": "I want to start a return",
+      "data": {
+        "query": "I want to start a return"
+      }
+    }
+  ]
+}
