@@ -190,8 +190,7 @@ class MainDialog extends ComponentDialog {
             return await stepContext.context.sendActivity({ attachments: [heroCard] });
 
         } else if (luisDetails.intent === "navigation") {
-          // return await stepContext.beginDialog('deliDialog', luisDetails);
-          console.log('hi')
+          return await stepContext.beginDialog('navigationDialog', luisDetails);
         }
 
 
