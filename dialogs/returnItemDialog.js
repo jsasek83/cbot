@@ -42,7 +42,7 @@ class ReturnItemDialog extends CancelAndHelpDialog {
         console.log("STEP: Execute return item step");
        
         if (!luisDetails.item) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'Great! Please describe the item and look it up in your purchase history' });
+            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'Great! Please describe the item and I\'ll look it up in your online purchase history' });
         } else {
             return await stepContext.next(luisDetails.item);
         }
