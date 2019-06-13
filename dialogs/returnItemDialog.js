@@ -169,7 +169,7 @@ class ReturnItemDialog extends CancelAndHelpDialog {
             // This is where calls to the booking AOU service or database would go.
 
             // If the call to the booking service was successful tell the user.
-            const msg = `Thanks your return number is 71913412 please drop off at any Costco Location`;
+            const msg = `Thanks a UPS truck will be by shortly to pickup your return`;
             await stepContext.context.sendActivity(msg);
         } else {
             await stepContext.context.sendActivity('Feel free to ask me something about warehouse hours or office locations.');
