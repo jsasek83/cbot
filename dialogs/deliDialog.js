@@ -80,7 +80,7 @@ class DeliDialog extends CancelAndHelpDialog {
             // If the call to the booking service was successful tell the user.
             const timeProperty = new TimexProperty(result.date);
             const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
-            const msg = `Searching our database for menus at ${ result.location } on ${ travelDateMsg }.`;
+            const msg = `Searching our database for menus at ${ result.location } for ${ travelDateMsg }.`;
             await stepContext.context.sendActivity(msg);
         } else {
             await stepContext.context.sendActivity('Feel free to ask me something about warehouse hours or office locations.');
