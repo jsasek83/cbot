@@ -40,6 +40,17 @@ class LuisHelper {
 
             }
 
+            if (intent === 'navigation') {
+              luisDetails.destination = 
+                LuisHelper.parseSimpleEntity(recognizerResult,"Destination");
+              luisDetails.name = LuisHelper.parseSimpleEntity(recognizerResult,"Name");
+              luisDetails.startLocation = 
+                LuisHelper.parseSimpleEntity(recognizerResult,"startLocation");
+              luisDetails.num = LuisHelper.parseSimpleEntity(recognizerResult, "number");
+              luisDetails.personName = 
+                LuisHelper.parseSimpleEntity(recognizerResult,"personName");
+            }
+
             console.log("====LUIS DETAILS=====");
             console.log(JSON.stringify(luisDetails));
 

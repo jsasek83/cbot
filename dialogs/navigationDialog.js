@@ -20,190 +20,87 @@ const WATERFALL_DIALOG = 'waterfallDialog';
 class NavigationDialog extends CancelAndHelpDialog {
   constructor(id) {
     super(id || 'NavigationDialog');
-
     this.addDialog(new TextPrompt(TEXT_PROMPT))
       .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
       .addDialog(
         new WaterfallDialog(WATERFALL_DIALOG, [
-          // this.itemStep.bind(this),
-          // this.confirmItemStep.bind(this),
-          // this.quantityStep.bind(this),
-          // this.reasonStep.bind(this),
-          // this.finalStep.bind(this)
+          NavigationDialog.gatherStartAndDestination,
+          NavigationDialog.navigationService
         ])
       );
-
     this.initialDialogId = WATERFALL_DIALOG;
   }
 
   /**
-   * If a destination city has not been provided, prompt for one.
+   *
+   * @static
+   * @param {*} stepContext
+   * @memberof NavigationDialog
    */
-  // async itemStep(stepContext) {
-  //   console.log(`STEPCONTEXT :: ${  JSON.stringify(stepContext.options)}`);
-  //   const luisDetails = stepContext.options;
-  //   console.log('STEP: Execute return item step');
-
-  //   if (!luisDetails.item) {
-  //     return await stepContext.prompt(TEXT_PROMPT, {
-  //       prompt:
-  //         "Great! Please describe the item and I'll look it up in your online purchase history"
-  //     });
-  //   }
-  //   return await stepContext.next(luisDetails.item);
-  // }
+  static async gatherStartAndDestination(stepContext) {
+    const luisDetails = stepContext.options;
+    const destination = NavigationDialog.getDestination(luisDetails);
+    if (typeof destination === 'undefined') {
+      // If for any reason, destination can't be parsed from the
+      // chat, prompt the user, which ends up in stepContext.result
+      // in the next step.
+      return await stepContext.prompt(TEXT_PROMPT, {
+        prompt:
+          "Where would you like to go? (6601, <name>'s desk, bathroom, etc.)"
+      });
+    }
+    return await stepContext.next(luisDetails);
+  }
 
   /**
-   * If a destination city has not been provided, prompt for one.
+   * Makes the actual request to the navigation service.
+   *
+   * @static
+   * @param {*} stepContext
+   * @memberof NavigationDialog
    */
-  // async confirmItemStep(stepContext) {
-  //   const luisDetails = stepContext.options;
-  //   luisDetails.item = stepContext.result;
-
-  //   console.log('STEP: Execute return confirm item step');
-
-  //   let msg = 'Is this the correct item you plan to return?';
-
-  //   const request = require('request');
-  //   const cheerio = require('cheerio');
-
-  //   function doRequest(options) {
-  //     return new Promise(function(resolve, reject) {
-  //       request(options, function(error, res, body) {
-  //         if (!error && res.statusCode == 200) {
-  //           resolve(body);
-  //         } else {
-  //           reject(error);
-  //         }
-  //       });
-  //     });
-  //   }
-
-  //   let options = {
-  //     url:
-  //       `https://www.costco.com/CatalogSearch?dept=All&keyword=${ 
-  //       luisDetails.item}`,
-  //     headers: {
-  //       accept:
-  //         'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-  //       'accept-language': 'en-US,en;q=0.9',
-  //       'user-agent':
-  //         'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Mobile Safari/537.36'
-  //     }
-  //   };
-
-  //   const res = await doRequest(options);
-
-  //   const $ = cheerio.load(res);
-
-  //   if ($('.caption .caption .description').length > 0) {
-  //     console.log(
-  //       $('.caption .caption .description')
-  //         .first()
-  //         .text()
-  //         .trim()
-  //     );
-  //     console.log(
-  //       $('.thumbnail .product-img-holder img')
-  //         .first()
-  //         .attr('src')
-  //         .trim()
-  //     );
-
-  //     let desc = $('.caption .caption .description')
-  //       .first()
-  //       .text()
-  //       .trim();
-  //     let imgUrl = $('.thumbnail .product-img-holder img')
-  //       .first()
-  //       .attr('src')
-  //       .trim();
-
-  //     const heroCard = CardFactory.adaptiveCard(HeroCard);
-
-  //     console.log(`HERRO :: ${  JSON.stringify(heroCard)}`);
-
-  //     heroCard.content.body[0].url = imgUrl;
-  //     heroCard.content.body[1].text = desc;
-
-  //     await stepContext.context.sendActivity({ attachments: [heroCard] });
-
-  //     return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });
-  //   }
-  //   return await stepContext.prompt(TEXT_PROMPT, {
-  //     prompt: "I couldn't find that item in your history.  Please search again"
-  //   });
-  // }
+  static async navigationService(stepContext) {
+    const luisDetails = stepContext.options;
+    const startLocation = NavigationDialog.getStartLocation(luisDetails);
+    const destination =
+      stepContext.result || NavigationDialog.getDestination(luisDetails);
+    
+    
+    await stepContext.context.sendActivity('Please wait while I Navigate you to your destination..');
+    // https://krakennavigation.azurewebsites.net/services/v1/Direction?startLocName=6604&endLocName=6601
+  }
 
   /**
-   * If a destination city has not been provided, prompt for one.
+   * Returns the destination from the entities object.
+   *
+   * @static
+   * @param {Object} luisDetails
+   * @returns {String} The destination the user is seeking
+   * @memberof NavigationDialog
    */
-  // async quantityStep(stepContext) {
-  //   const luisDetails = stepContext.options;
-
-  //   if (stepContext.result === false) {
-  //     return await stepContext.endDialog(luisDetails);
-  //   }
-
-  //   console.log('STEP: Execute return quantity step');
-
-  //   if (!luisDetails.quantity) {
-  //     return await stepContext.prompt(TEXT_PROMPT, {
-  //       prompt: 'How many will you be returning?'
-  //     });
-  //   }
-  //   return await stepContext.next(luisDetails.quantity);
-  // }
+  static getDestination(luisDetails) {
+    // Destination can be destination, name, personName, or num.
+    const destinationArray =
+      (luisDetails && luisDetails.destination) ||
+      (luisDetails && luisDetails.name) ||
+      (luisDetails && luisDetails.personName) ||
+      (luisDetails && luisDetails.num);
+    return Array.isArray(destinationArray) ? destinationArray[0] : undefined;
+  }
 
   /**
-   * If a destination city has not been provided, prompt for one.
+   * Returns the startLocation from the entities object.
+   *
+   * @static
+   * @param {Object} luisDetails
+   * @returns {String} The startLocation from the user
+   * @memberof NavigationDialog
    */
-  // async reasonStep(stepContext) {
-  //   const luisDetails = stepContext.options;
-  //   luisDetails.quantity = stepContext.result;
-
-  //   console.log('STEP: Execute return reason step');
-
-  //   if (!luisDetails.reason) {
-  //     return await stepContext.prompt(TEXT_PROMPT, {
-  //       prompt: 'Why are you returning this item?'
-  //     });
-  //   }
-  //   return await stepContext.next(luisDetails.reason);
-  // }
-
-  /**
-   * This is the final step in the main waterfall dialog.
-   * It wraps up the sample "book a flight" interaction with a simple confirmation.
-   */
-  // async finalStep(stepContext) {
-  //   const luisDetails = stepContext.options;
-  //   luisDetails.reason = stepContext.result;
-
-  //   console.log(`DETAILS :: ${JSON.stringify(luisDetails)}`);
-
-  //   // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
-  //   if (stepContext.result) {
-  //     const result = luisDetails;
-  //     // Now we have all the booking details.
-
-  //     // This is where calls to the booking AOU service or database would go.
-
-  //     // If the call to the booking service was successful tell the user.
-  //     const msg = `Thanks a UPS truck will be by shortly to pickup your return`;
-  //     await stepContext.context.sendActivity(msg);
-  //   } else {
-  //     await stepContext.context.sendActivity(
-  //       'Feel free to ask me something about warehouse hours or office locations.'
-  //     );
-  //   }
-  //   return await stepContext.endDialog();
-  // }
-
-  // isAmbiguous(timex) {
-  //   const timexPropery = new TimexProperty(timex);
-  //   return !timexPropery.types.has('definite');
-  // }
+  static getStartLocation(luisDetails) {
+    // Start location is startLocation
+    const startLocation = luisDetails && luisDetails.startLocation;
+    return Array.isArray(startLocation) ? startLocation[0] : undefined;
+  }
 }
 
 module.exports.NavigationDialog = NavigationDialog;
