@@ -175,11 +175,23 @@ class MainDialog extends ComponentDialog {
 
         }else if(luisDetails.intent == "laugh"){
 
+            /*let heroCard = CardFactory.adaptiveCard(HeroCard);
+    
+            console.log("HERRO :: " + JSON.stringify(heroCard));
+    
+            heroCard.content.body[0].url = imgUrl;
+            heroCard.content.body[1].text = desc;
+    
+            await stepContext.context.sendActivity({ attachments: [heroCard] });
+           
+            return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });*/
+
             const heroCard = CardFactory.adaptiveCard(HeroCard);
             return await stepContext.context.sendActivity({ attachments: [heroCard] });
 
         } else if (luisDetails.intent === "navigation") {
-          return await stepContext.beginDialog('navigationDialog', luisDetails);
+          // return await stepContext.beginDialog('deliDialog', luisDetails);
+          console.log('hi')
         }
 
 
