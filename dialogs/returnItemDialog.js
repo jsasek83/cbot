@@ -58,7 +58,7 @@ class ReturnItemDialog extends CancelAndHelpDialog {
 
         console.log("STEP: Execute return confirm item step");
 
-        var msg = "Is the correct item you plan to return?";
+        var msg = "Is this the correct item you plan to return?";
 
         let request = require('request');
         let cheerio = require('cheerio');
@@ -87,23 +87,33 @@ class ReturnItemDialog extends CancelAndHelpDialog {
         let res = await doRequest(options);
     
         const $ = cheerio.load(res);
+
+        if($('.caption .caption .description').length > 0){
+
+            console.log($('.caption .caption .description').first().text().trim());
+            console.log($('.thumbnail .product-img-holder img').first().attr('src').trim());
     
-        console.log($('.caption .caption .description').first().text().trim());
-        console.log($('.thumbnail .product-img-holder img').first().attr('src').trim());
+            var desc = $('.caption .caption .description').first().text().trim();
+            var imgUrl = $('.thumbnail .product-img-holder img').first().attr('src').trim();
+    
+            let heroCard = CardFactory.adaptiveCard(HeroCard);
+    
+            console.log("HERRO :: " + JSON.stringify(heroCard));
+    
+            heroCard.content.body[0].url = imgUrl;
+            heroCard.content.body[1].text = desc;
+    
+            await stepContext.context.sendActivity({ attachments: [heroCard] });
+           
+            return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });
 
-        var desc = $('.caption .caption .description').first().text().trim();
-        var imgUrl = $('.thumbnail .product-img-holder img').first().attr('src').trim();
+        }else{
 
-        let heroCard = CardFactory.adaptiveCard(HeroCard);
+            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'I couldn\'t find that item in your history.  Please search again' });
 
-        console.log("HERRO :: " + JSON.stringify(heroCard));
+        }
+    
 
-        heroCard.content.body[0].url = imgUrl;
-        heroCard.content.body[1].text = desc;
-
-        await stepContext.context.sendActivity({ attachments: [heroCard] });
-       
-        return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });
     }
 
     /**
@@ -147,7 +157,7 @@ class ReturnItemDialog extends CancelAndHelpDialog {
      */
     async finalStep(stepContext) {
         const luisDetails = stepContext.options;
-        luisDetails.location = stepContext.result;
+        luisDetails.reason = stepContext.result;
 
         console.log("DETAILS :: " + JSON.stringify(luisDetails));
 
@@ -159,9 +169,7 @@ class ReturnItemDialog extends CancelAndHelpDialog {
             // This is where calls to the booking AOU service or database would go.
 
             // If the call to the booking service was successful tell the user.
-            const timeProperty = new TimexProperty(result.date);
-            const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
-            const msg = `Searching our database for menus at ${ result.location } on ${ travelDateMsg }.`;
+            const msg = `Thanks your return number is 71913412 please drop off at any Costco Location`;
             await stepContext.context.sendActivity(msg);
         } else {
             await stepContext.context.sendActivity('Feel free to ask me something about warehouse hours or office locations.');
