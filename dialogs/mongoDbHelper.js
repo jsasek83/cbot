@@ -20,7 +20,7 @@ class MongoDbHelper  {
 
             try {
                 const db = client.db("kraken");
-                let collection = db.collection('deliMenusDates');
+                let collection = db.collection('deliMenus');
                 let res = await collection.findOne(queryString);
                 return res;
             } catch (err) {
