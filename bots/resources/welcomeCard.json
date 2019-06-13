@@ -32,9 +32,9 @@
     },
     {
       "type": "Action.Submit",
-      "title": "Where's office room 7206?",
+      "title": "I want to start a return",
       "data": {
-        "query": "Where's office room 7206?"
+        "query": "I want to start a return"
       }
     }
   ]
