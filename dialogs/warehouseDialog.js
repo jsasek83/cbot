@@ -17,6 +17,8 @@ class WarehouseDialog extends CancelAndHelpDialog {
     constructor(id) {
         super(id || 'WarehouseDialog');
 
+        this.cardJsonString = JSON.stringify(CardFactory.adaptiveCard(WarehouseCard));
+
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
@@ -242,7 +244,7 @@ class WarehouseDialog extends CancelAndHelpDialog {
         // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
         if (stepContext.result) {
           
-            let warehouseCard = CardFactory.adaptiveCard(WarehouseCard);
+            const warehouseCard = JSON.parse(this.cardJsonString);
     
             console.log("WAREHOUSE CARD :: " + JSON.stringify(warehouseCard));
 
