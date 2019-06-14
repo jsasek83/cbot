@@ -73,7 +73,7 @@ class NavigationDialog extends CancelAndHelpDialog {
     if (response && response.mapURI) {
       const heroCard = CardFactory.adaptiveCard(HeroCard);
       heroCard.content.body[0].url = response.mapURI;
-      heroCard.content.body[1].text = JSON.stringify(response, null, 1);
+      heroCard.content.body[1].text = '';
       await stepContext.context.sendActivity({ attachments: [heroCard] });
     } else {
       await stepContext.context.sendActivity(
