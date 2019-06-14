@@ -81,7 +81,7 @@ class DeliDialog extends CancelAndHelpDialog {
 
             // If the call to the booking service was successful tell the user.
             const timeProperty = new TimexProperty(result.date);
-            const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
+            var travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
 
             if(travelDateMsg == ""){
                 travelDateMsg = "today";
