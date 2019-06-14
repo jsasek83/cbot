@@ -6,6 +6,7 @@ const { ComponentDialog, DialogSet, DialogTurnStatus, TextPrompt, WaterfallDialo
 const { DeliDialog } = require('./deliDialog');
 const { ReturnItemDialog } = require('./returnItemDialog');
 const { NavigationDialog } = require('./navigationDialog');
+const { WarehouseDialog } = require('./warehouseDialog');
 const { LuisHelper } = require('./luisHelper');
 const { CardFactory } = require('botbuilder-core');
 const WelcomeCard = require('../bots/resources/welcomeCard.json');
@@ -16,6 +17,7 @@ const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const DELI_DIALOG = 'deliDialog';
 const RETURN_ITEM_DIALOG = 'returnItemDialog';
 const NAVIGATION_DIALOG = 'navigationDialog';
+const WAREHOUSE_DIALOG = 'warehouseDialog';
 
 class MainDialog extends ComponentDialog {
     constructor(logger) {
@@ -34,6 +36,7 @@ class MainDialog extends ComponentDialog {
             .addDialog(new DeliDialog(DELI_DIALOG))
             .addDialog(new ReturnItemDialog(RETURN_ITEM_DIALOG))
             .addDialog(new NavigationDialog(NAVIGATION_DIALOG))
+            .addDialog(new WarehouseDialog(WAREHOUSE_DIALOG))
             .addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
                 this.actStep.bind(this)
             ]));
@@ -159,6 +162,10 @@ class MainDialog extends ComponentDialog {
 
         if(luisDetails.intent == "findMenu"){
             return await stepContext.beginDialog('deliDialog', luisDetails);
+
+        }else if(luisDetails.intent == "warehouse"){
+                return await stepContext.beginDialog('warehouseDialog', luisDetails);
+
         }else if(luisDetails.intent == "greeting"){
 
             const welcomeCard = CardFactory.adaptiveCard(WelcomeCard);
@@ -192,7 +199,7 @@ class MainDialog extends ComponentDialog {
         } else if (luisDetails.intent === "navigation") {
           // return await stepContext.beginDialog('deliDialog', luisDetails);
           console.log('hi')
-        }
+        } 
 
 
         // In this sample we only have a single intent we are concerned with. However, typically a scenario

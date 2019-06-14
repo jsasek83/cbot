@@ -13,9 +13,9 @@ const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
 const TEXT_PROMPT = 'textPrompt';
 const WATERFALL_DIALOG = 'waterfallDialog';
 
-class DeliDialog extends CancelAndHelpDialog {
+class WarehouseDialog extends CancelAndHelpDialog {
     constructor(id) {
-        super(id || 'DeliDialog');
+        super(id || 'WarehouseDialog');
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
@@ -83,10 +83,6 @@ class DeliDialog extends CancelAndHelpDialog {
             const timeProperty = new TimexProperty(result.date);
             const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
 
-            if(travelDateMsg == ""){
-                travelDateMsg = "today";
-            }
-
             const { MongoDbHelper } = require('./mongoDbHelper');
 
             var mh = new MongoDbHelper();
@@ -147,4 +143,4 @@ class DeliDialog extends CancelAndHelpDialog {
     }
 }
 
-module.exports.DeliDialog = DeliDialog;
+module.exports.WarehouseDialog = WarehouseDialog;
