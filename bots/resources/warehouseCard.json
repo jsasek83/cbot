@@ -1,0 +1,57 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "speak": "The forecast for Seattle January 20 is mostly clear with a High of 51 degrees and Low of 40 degrees",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Warehouse Name",
+      "size": "large",
+      "isSubtle": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Warehouse Address",
+      "size": "medium",
+      "isSubtle": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Warehouse Phone Number",
+      "size": "medium",
+      "isSubtle": true
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "WarehouseHours",
+              "size": "small",
+              "weight":"bolder",
+              "spacing": "none"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Services",
+              "size": "small",
+              "weight":"bolder",
+              "spacing": "none"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

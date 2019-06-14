@@ -6,7 +6,7 @@ const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialo
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { DateResolverDialog } = require('./dateResolverDialog');
 const { CardFactory } = require('botbuilder-core');
-const LunchCard = require('../bots/resources/lunchCard.json');
+const WarehouseCard = require('../bots/resources/warehouseCard.json');
 
 const CONFIRM_PROMPT = 'confirmPrompt';
 const DATE_RESOLVER_DIALOG = 'dateResolverDialog';
@@ -20,7 +20,6 @@ class WarehouseDialog extends CancelAndHelpDialog {
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
-                this.dateStep.bind(this),
                 this.locationStep.bind(this),
                 this.finalStep.bind(this)
             ]));
@@ -31,29 +30,11 @@ class WarehouseDialog extends CancelAndHelpDialog {
     /**
      * If a destination city has not been provided, prompt for one.
      */
-    async dateStep(stepContext) {
-
-        console.log("STEPCONTEXT :: " + JSON.stringify(stepContext.options));
-
-        const luisDetails = stepContext.options;
-
-        console.log("STEP: Execute deli date step");
-       
-        if (!luisDetails.date) {
-            return await stepContext.next(new Date(Date.now()));
-        } else {
-            return await stepContext.next(luisDetails.date);
-        }
-    }
-
-    /**
-     * If a destination city has not been provided, prompt for one.
-     */
     async locationStep(stepContext) {
         const luisDetails = stepContext.options;
         luisDetails.date = stepContext.result;
 
-        console.log("STEP: Execute deli location step");
+        console.log("STEP: Execute warehouse location step");
 
         if (!luisDetails.location) {
             return await stepContext.prompt(TEXT_PROMPT, { prompt: 'Which Costco building?' });
@@ -70,70 +51,267 @@ class WarehouseDialog extends CancelAndHelpDialog {
         const luisDetails = stepContext.options;
         luisDetails.location = stepContext.result;
 
-        console.log("DETAILS :: " + JSON.stringify(luisDetails));
+
+        var whdata = {
+            "_id" : "5d02c5cf50dbb7bac02bd101",
+            "stlocID" : 110,
+            "displayName" : "110",
+            "identifier" : "110",
+            "phone" : "(425) 313-0965 ",
+            "fax" : "",
+            "address1" : "1801 10TH AVE NW",
+            "city" : "ISSAQUAH",
+            "state" : "WA",
+            "country" : "US",
+            "zipCode" : "98027-5384",
+            "manager" : "STACEY JIMENEZ",
+            "openDate" : "Sep 9, 1994",
+            "tiresDepartmentPhone" : "(425) 313-0965",
+            "distance" : 0,
+            "latitude" : 47.551,
+            "longitude" : -122.05,
+            "parentGeoNodeID" : 10935,
+            "active" : 1,
+            "languageID" : -1,
+            "hasGasDepartment" : true,
+            "hasTiresDepartment" : true,
+            "hasFoodDepartment" : true,
+            "hasHearingDepartment" : true,
+            "hasPharmacyDepartment" : true,
+            "hasOpticalDepartment" : true,
+            "hasBusinessDepartment" : false,
+            "hasPhotoCenterDepartment" : true,
+            "warehouseHours" : [
+                "M-F 10:00am - 8:30pm",
+                "Sat. 9:30am - 6:00pm",
+                "Sun. 10:00am - 6:00pm"
+            ],
+            "pharmacyHours" : [
+                "M-F 10:00-8:30",
+                "SAT 9:30-6:00",
+                "SUN CLOSED"
+            ],
+            "upcomingHolidays" : [
+                {
+                    "holidayName" : "Independence Day",
+                    "holidayDate" : "7/4",
+                    "holidayCode" : "closed",
+                    "holidayHours" : "None"
+                }
+            ],
+            "gasStationHours" : [
+                {
+                    "title" : "Mon-Fri. ",
+                    "code" : "open",
+                    "time" : "6:00am - 9:30pm"
+                },
+                {
+                    "title" : "Sat. ",
+                    "code" : "open",
+                    "time" : "7:00am - 7:00pm"
+                },
+                {
+                    "title" : "Sun. ",
+                    "code" : "open",
+                    "time" : "7:00am - 7:00pm"
+                }
+            ],
+            "tireCenterHours" : [
+                {
+                    "title" : "Mon-Fri. ",
+                    "code" : "open",
+                    "time" : "9:00am - 8:30pm"
+                },
+                {
+                    "title" : "Sat. ",
+                    "code" : "open",
+                    "time" : "9:00am - 6:00pm"
+                },
+                {
+                    "title" : "Sun. ",
+                    "code" : "open",
+                    "time" : "9:00am - 6:00pm"
+                }
+            ],
+            "coreServices" : [
+                {
+                    "name" : "Gas Station",
+                    "localizedName" : "Gas Station",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Food Court",
+                    "localizedName" : "Food Court",
+                    "phone" : "(425) 391-1731 "
+                },
+                {
+                    "name" : "Hearing Aids",
+                    "localizedName" : "Hearing Aids",
+                    "phone" : "(425) 369-6732 "
+                },
+                {
+                    "name" : "Optical Department",
+                    "localizedName" : "Optical Department",
+                    "phone" : "(425) 313-9232 "
+                },
+                {
+                    "name" : "Pharmacy",
+                    "localizedName" : "Pharmacy",
+                    "phone" : "(425) 313-9200 "
+                },
+                {
+                    "name" : "Photo Center",
+                    "localizedName" : "Photo Center",
+                    "phone" : "(425) 369-6730 "
+                },
+                {
+                    "name" : "Tire Service Center",
+                    "localizedName" : "Tire Service Center",
+                    "phone" : "(425) 313-0965 "
+                }
+            ],
+            "specialtyDepartments" : [
+                {
+                    "name" : "Auto Buying Program",
+                    "localizedName" : "Auto Buying Program",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Bakery",
+                    "localizedName" : "Bakery",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Executive Membership",
+                    "localizedName" : "Executive Membership",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Fresh Deli",
+                    "localizedName" : "Fresh Deli",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Fresh Meat",
+                    "localizedName" : "Fresh Meat",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Fresh Produce",
+                    "localizedName" : "Fresh Produce",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Gas Station",
+                    "localizedName" : "Gas Station",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Independent Optometrist",
+                    "localizedName" : "Independent Optometrist",
+                    "phone" : "(425) 369-6726 "
+                },
+                {
+                    "name" : "Inkjet Cartridge Refill",
+                    "localizedName" : "Inkjet Cartridge Refill",
+                    "phone" : " "
+                },
+                {
+                    "name" : "Membership",
+                    "localizedName" : "Membership",
+                    "phone" : "(425) 313-0965 "
+                },
+                {
+                    "name" : "Photo Center",
+                    "localizedName" : "Photo Center",
+                    "phone" : "(425) 369-6730 "
+                },
+                {
+                    "name" : "Special Order Kiosk",
+                    "localizedName" : "Special Order Kiosk",
+                    "phone" : " "
+                }
+            ],
+            "locationName" : "Issaquah",
+            "isShipToWarehouse" : true,
+            "isWarehousePickup" : true,
+            "enableShipToHome" : false,
+            "_class" : "com.kraken.services.warehouse.data.Warehouse"
+        }
 
         // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
         if (stepContext.result) {
-            const result = luisDetails;
-            // Now we have all the booking details.
-
-            // This is where calls to the booking AOU service or database would go.
-
-            // If the call to the booking service was successful tell the user.
-            const timeProperty = new TimexProperty(result.date);
-            const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
-
-            const { MongoDbHelper } = require('./mongoDbHelper');
-
-            var mh = new MongoDbHelper();
-
-            const msg = `Searching our database for menus at ${ result.location } for ${ travelDateMsg }.`;
-            stepContext.context.sendActivity(msg);
-
-            var dateString = "";
-            if(travelDateMsg.toLowerCase().indexOf('toda') > -1){
-                dateString += new Date(Date.now()).getMonth() + 1;
-                dateString += "/";
-                dateString += new Date(Date.now()).getDate();
-                dateString += "/";
-                dateString += new Date(Date.now()).getFullYear();
-            }else if(travelDateMsg.toLowerCase().indexOf('tomorr') > -1){
-                var tomorrowDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-                dateString += tomorrowDate.getMonth() + 1;
-                dateString += "/";
-                dateString += tomorrowDate.getDate();
-                dateString += "/";
-                dateString += tomorrowDate.getFullYear();
-            }
-
-            var buildingNumber = String(result.location).match(/\d+/)[0];
-            var query = {"date" : dateString, "location" : {$regex: buildingNumber}};
-
-            console.log("DELI QUERY :: " + JSON.stringify(query));
-
-            var data = await mh.queryDeli(query);
-
-            if(data == null){
-                await stepContext.context.sendActivity("Sorry I couldn't find any data for that location and time, please try again");
-            }else{
-
-                let lunchCard = CardFactory.adaptiveCard(LunchCard);
+          
+            let warehouseCard = CardFactory.adaptiveCard(WarehouseCard);
     
-                console.log("LUNCH CARD :: " + JSON.stringify(lunchCard));
+            console.log("WAREHOUSE CARD :: " + JSON.stringify(warehouseCard));
 
-                var lunchItems = [];
-                for(var i=0;i<data.menuItems.length;i++){
-                    lunchItems.push({"title" : data.menuItems[i].type, "value" : data.menuItems[i].name});
-                }
-        
-                lunchCard.content.body[0].facts = lunchItems;
-        
-                return await stepContext.context.sendActivity({ attachments: [lunchCard] });
+            let wc = warehouseCard.content;
+            wc.body[0].text = "Warehouse " + whdata.displayName;
+            wc.body[1].text = whdata.address1 + " " + whdata.city + " " + whdata.state;
+            wc.body[2].text = whdata.phone;
+
+            let wcHours = warehouseCard.content.body[3].columns[0].items;
+
+            for(var i=0;i<whdata.warehouseHours.length;i++){
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": whdata.warehouseHours[i],
+                    "size": "small",
+                    "weight":"regular",
+                    "spacing": "none"
+                })
             }
 
-        } else {
-            await stepContext.context.sendActivity('Feel free to ask me something about warehouse hours or office locations.');
+            wcHours.push({
+                "type": "TextBlock",
+                "text": "",
+                "size": "small",
+                "weight":"regular",
+                "spacing": "none"
+            })
+
+            wcHours.push({
+                "type": "TextBlock",
+                "text": "Pharmacy Hours",
+                "size": "small",
+                "weight":"bolder",
+                "spacing": "none"
+            })
+
+            for(var i=0;i<whdata.pharmacyHours.length;i++){
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": whdata.pharmacyHours[i],
+                    "size": "small",
+                    "weight":"regular",
+                    "spacing": "none"
+                })
+            }
+
+            let wcServices = warehouseCard.content.body[3].columns[1].items;
+
+            for(var i=0;i<whdata.coreServices.length;i++){
+                wcServices.push({
+                    "type": "TextBlock",
+                    "text": whdata.coreServices[i].localizedName,
+                    "size": "small",
+                    "weight":"regular",
+                    "spacing": "none"
+                })
+            }
+
+            /*var lunchItems = [];
+            for(var i=0;i<data.menuItems.length;i++){
+                lunchItems.push({"title" : data.menuItems[i].type, "value" : data.menuItems[i].name});
+            }
+    
+            warehouseCard.content.body[0].facts = lunchItems*/
+    
+            return await stepContext.context.sendActivity({ attachments: [warehouseCard] });
+        
         }
+
         return await stepContext.endDialog();
     }
 
