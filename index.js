@@ -33,8 +33,20 @@ adapter.onTurnError = async (context, error) => {
     // NOTE: In production environment, you should consider logging this to Azure
     //       application insights.
     console.error(`\n [onTurnError]: ${ error }`);
+
+    var baseMessage = "Sorry can't help you with that buddy. ";
+    var helpMessages = [];
+    helpMessages.push("Try something like \"When does Costco close?\"");
+    helpMessages.push("Try something like \"I need to return an item\"");
+    helpMessages.push("Try something like \"What are the Costco's gas hours?\"");
+    helpMessages.push("Try something like \"Help me find a conference room\"");
+    helpMessages.push("Try something like \"What's on the deli menu for today?\"");
+    helpMessages.push("Try something like \"Tell me a joke\"");
+
+    const randomPicNumber = Math.floor(Math.random() * Math.floor(helpMessages.length));
+
     // Send a message to the user
-    await context.sendActivity(`Oops. Something went wrong!`);
+    await context.sendActivity(baseMessage + helpMessages[randomPicNumber]);
     // Clear out state
     await conversationState.delete(context);
 };

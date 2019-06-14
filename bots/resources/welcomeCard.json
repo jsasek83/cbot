@@ -16,7 +16,7 @@
       "type": "TextBlock",
       "size": "default",
       "isSubtle": "yes",
-      "text": "Ask me something like \"What is the deli serving today?\", or say \"I need to return an item\"",
+      "text": "Ask me something like \"What is the deli serving today?\", \"When does Costco close?\", \"Find a conference room\", or say \"I need to return an item\"",
       "wrap": true,
       "maxLines": 0
     }
