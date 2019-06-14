@@ -1,17 +1,12 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-
-const {
-  TimexProperty
-} = require('@microsoft/recognizers-text-data-types-timex-expression');
+const request = require('request');
 const {
   ConfirmPrompt,
   TextPrompt,
   WaterfallDialog
 } = require('botbuilder-dialogs');
 const { CardFactory } = require('botbuilder-core');
+const HeroCard = require('../bots/resources/heroCard.json');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
-// const HeroCard = require('../bots/resources/heroCard.json');
 
 const CONFIRM_PROMPT = 'confirmPrompt';
 const TEXT_PROMPT = 'textPrompt';
@@ -32,6 +27,8 @@ class NavigationDialog extends CancelAndHelpDialog {
   }
 
   /**
+   * Attempts to fetch the destination from the utterance. If one isn't
+   * found, prompts the user to provide one.
    *
    * @static
    * @param {*} stepContext
@@ -53,7 +50,8 @@ class NavigationDialog extends CancelAndHelpDialog {
   }
 
   /**
-   * Makes the actual request to the navigation service.
+   * Makes the request to the navigation service, and then sends back
+   * a card representing the map.
    *
    * @static
    * @param {*} stepContext
@@ -63,11 +61,26 @@ class NavigationDialog extends CancelAndHelpDialog {
     const luisDetails = stepContext.options;
     const startLocation = NavigationDialog.getStartLocation(luisDetails);
     const destination =
-      stepContext.result || NavigationDialog.getDestination(luisDetails);
-    
-    
-    await stepContext.context.sendActivity('Please wait while I Navigate you to your destination..');
-    // https://krakennavigation.azurewebsites.net/services/v1/Direction?startLocName=6604&endLocName=6601
+      NavigationDialog.getDestination(luisDetails) || stepContext.result;
+    await stepContext.context.sendActivity(
+      'Please wait while I navigate you to your destination..'
+    );
+    const response = await NavigationDialog.makeRequest(
+      startLocation,
+      destination
+    );
+
+    if (response && response.mapURI) {
+      const heroCard = CardFactory.adaptiveCard(HeroCard);
+      heroCard.content.body[0].url = response.mapURI;
+      heroCard.content.body[1].text = JSON.stringify(response, null, 1);
+      await stepContext.context.sendActivity({ attachments: [heroCard] });
+    } else {
+      await stepContext.context.sendActivity(
+        `Oof. I couldn\'t get directions to ${destination}.`
+      );
+    }
+    return await stepContext.endDialog();
   }
 
   /**
@@ -100,6 +113,42 @@ class NavigationDialog extends CancelAndHelpDialog {
     // Start location is startLocation
     const startLocation = luisDetails && luisDetails.startLocation;
     return Array.isArray(startLocation) ? startLocation[0] : undefined;
+  }
+
+  /**
+   * Makes the actual request to the navigation service
+   *
+   * @static
+   * @param {*} start If no starting location, sends ''
+   * @param {*} end The destination location
+   * @returns
+   * @memberof NavigationDialog
+   */
+  static makeRequest(start, end) {
+    const s = start || '';
+    const e = end || '';
+    return new Promise((resolve, reject) => {
+      const url = `https://krakennavigation.azurewebsites.net/services/v1/Direction?startLocName=${s}&endLocName=${e}`;
+      request(
+        {
+          url,
+          headers: {
+            correlationId: 'xyz'
+          }
+        },
+        (error, response, body) => {
+          console.log(
+            `navigationDialog.js.makeRequest: Status`,
+            response.statusCode
+          );
+          if (!error && response.statusCode === 200) {
+            const navigationObj = JSON.parse(body);
+            resolve(navigationObj);
+          }
+          reject(error);
+        }
+      );
+    });
   }
 }
 

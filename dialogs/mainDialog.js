@@ -12,6 +12,7 @@ const { CardFactory } = require('botbuilder-core');
 const WelcomeCard = require('../bots/resources/welcomeCard.json');
 const GratitudeCard = require('../bots/resources/gratitudeCard.json');
 const HeroCard = require('../bots/resources/heroCard.json');
+const LaughCard = require('../bots/resources/laughCard.json');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const DELI_DIALOG = 'deliDialog';
@@ -182,24 +183,16 @@ class MainDialog extends ComponentDialog {
 
         }else if(luisDetails.intent == "laugh"){
 
-            /*let heroCard = CardFactory.adaptiveCard(HeroCard);
-    
-            console.log("HERRO :: " + JSON.stringify(heroCard));
-    
-            heroCard.content.body[0].url = imgUrl;
-            heroCard.content.body[1].text = desc;
-    
-            await stepContext.context.sendActivity({ attachments: [heroCard] });
-           
-            return await stepContext.prompt(CONFIRM_PROMPT, { prompt: msg });*/
+            const laughCard = CardFactory.adaptiveCard(LaughCard);
 
-            const heroCard = CardFactory.adaptiveCard(HeroCard);
-            return await stepContext.context.sendActivity({ attachments: [heroCard] });
+            const randomPicNumber = Math.floor(Math.random() * Math.floor(20));
+            laughCard.content.body[0].url = `https://costcocraig4b3e8.blob.core.windows.net/laugh/${randomPicNumber}.jpg`
+
+            return await stepContext.context.sendActivity({ attachments: [laughCard] });
 
         } else if (luisDetails.intent === "navigation") {
-          // return await stepContext.beginDialog('deliDialog', luisDetails);
-          console.log('hi')
-        } 
+          return await stepContext.beginDialog('navigationDialog', luisDetails);
+        }
 
 
         // In this sample we only have a single intent we are concerned with. However, typically a scenario
