@@ -36,7 +36,7 @@ class WarehouseDialog extends CancelAndHelpDialog {
         if (typeof location === 'undefined') {
             return await stepContext.prompt(TEXT_PROMPT, {
                 prompt:
-                'Which Costco warehouse? (zip code, city and state, or warehouse number)'
+                'Which Costco warehouse? (tell me the city, zip code, or warehouse number)'
             });
         }
         return await stepContext.next(luisDetails);
