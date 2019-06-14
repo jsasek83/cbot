@@ -69,7 +69,10 @@ public class WarehouseController {
             try {
                 warehouses = scraper.getWarehouses();
                 warehouse = warehouses.get(0);
-                warehouseRepo.save(warehouse);
+                //only save to the database if the record doesn't exist
+                if (warehouseRepo.findByStlocID(warehouse.getStlocID()) == null) {
+                    warehouseRepo.save(warehouse);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new WarehouseNotFoundException();

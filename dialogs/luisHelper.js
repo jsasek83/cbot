@@ -51,6 +51,10 @@ class LuisHelper {
                 LuisHelper.parseSimpleEntity(recognizerResult,"personName");
             }
 
+            if (intent === 'warehouse') {
+                luisDetails.location = LuisHelper.parseSimpleEntity(recognizerResult, "Location");
+            }
+
             console.log("====LUIS DETAILS=====");
             console.log(JSON.stringify(luisDetails));
 

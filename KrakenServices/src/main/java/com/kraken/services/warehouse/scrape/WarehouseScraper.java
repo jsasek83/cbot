@@ -30,16 +30,16 @@ public class WarehouseScraper {
                 .queryParam("hasFood", false).queryParam("hasHearing", false).queryParam("hasPharmacy", false)
                 .queryParam("hasOptical", false).queryParam("hasBusiness", false).queryParam("hasPhotoCenter", false)
                 .queryParam("tiresCheckout", 0).queryParam("isTransferWarehouse", false)
-                .queryParam("warehousePickupCheckout", false);
+                .queryParam("warehousePickupCheckout", false).queryParam("populateWarehouseDetails", true);
     }
 
     public WarehouseScraper(double latitude, double longitude, int numResults) {
         endpoint.queryParam("numOfWarehouses", numResults).queryParam("latitude", latitude).queryParam("longitude",
-                longitude).queryParam("populateWarehouseDetails", false);
+                longitude);
     }
 
     public WarehouseScraper(int warehouseNumber) {
-        endpoint.queryParam("warehouseNumber", warehouseNumber).queryParam("populateWarehouseDetails", true);
+        endpoint.queryParam("warehouseNumber", warehouseNumber);
     }
 
     public List<Warehouse> getWarehouses() throws JsonParseException, JsonMappingException, IOException {

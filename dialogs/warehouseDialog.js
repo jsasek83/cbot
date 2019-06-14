@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 const request = require('request');
-const { TimexProperty } = require('@microsoft/recognizers-text-data-types-timex-expression');
 const { ConfirmPrompt, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { CancelAndHelpDialog } = require('./cancelAndHelpDialog');
 const { CardFactory } = require('botbuilder-core');
@@ -33,15 +32,14 @@ class WarehouseDialog extends CancelAndHelpDialog {
      */
     static async locationStep(stepContext) {
         const luisDetails = stepContext.options;
-        luisDetails.date = stepContext.result;
-
-        console.log("STEP: Execute warehouse location step");
-
-        if (!luisDetails.location) {
-            return await stepContext.prompt(TEXT_PROMPT, { prompt: 'Which Costco warehouse? (zip code, city and state, or warehouse number)' });
-        } else {
-            return await stepContext.next(luisDetails.location);
+        const location = WarehouseDialog.getLocation(luisDetails);
+        if (typeof location === 'undefined') {
+            return await stepContext.prompt(TEXT_PROMPT, {
+                prompt:
+                'Which Costco warehouse? (zip code, city and state, or warehouse number)'
+            });
         }
+        return await stepContext.next(luisDetails);
     }
 
     /**
@@ -50,12 +48,12 @@ class WarehouseDialog extends CancelAndHelpDialog {
      */
     static async finalStep(stepContext) {
         const luisDetails = stepContext.options;
-        luisDetails.location = stepContext.result;
+        const location = WarehouseDialog.getLocation(luisDetails) || stepContext.result;
 
-        const param = WarehouseDialog.getParam(luisDetails.location);
+        const param = WarehouseDialog.getParam(location);
 
         const warehouseData = await WarehouseDialog.makeRequest(
-            luisDetails.location,
+            location,
             param
         ).catch(error => {
             console.log('Error: ', error);
@@ -68,8 +66,9 @@ class WarehouseDialog extends CancelAndHelpDialog {
     
             console.log("WAREHOUSE CARD :: " + JSON.stringify(warehouseCard));
 
+            console.log(warehouseData);
             let wc = warehouseCard.content;
-            wc.body[0].text = "Warehouse " + warehouseData.displayName;
+            wc.body[0].text = warehouseData.locationName + " - Warehouse " + warehouseData.displayName;
             wc.body[1].text = warehouseData.address1 + " " + warehouseData.city + " " + warehouseData.state;
             wc.body[2].text = warehouseData.phone;
 
@@ -82,45 +81,163 @@ class WarehouseDialog extends CancelAndHelpDialog {
                     "size": "small",
                     "weight":"regular",
                     "spacing": "none"
-                })
+                });
             }
 
-            wcHours.push({
-                "type": "TextBlock",
-                "text": "",
-                "size": "small",
-                "weight":"regular",
-                "spacing": "none"
-            })
-
-            wcHours.push({
-                "type": "TextBlock",
-                "text": "Pharmacy Hours",
-                "size": "small",
-                "weight":"bolder",
-                "spacing": "none"
-            })
-
-            for(var i=0;i<warehouseData.pharmacyHours.length;i++){
+            if (warehouseData.upcomingHolidays) {
                 wcHours.push({
                     "type": "TextBlock",
-                    "text": warehouseData.pharmacyHours[i],
+                    "text": "\n",
                     "size": "small",
                     "weight":"regular",
                     "spacing": "none"
-                })
+                });
+
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": "Upcoming Holidays",
+                    "size": "small",
+                    "weight":"bolder",
+                    "spacing": "none"
+                });
+    
+                for(var i=0;i<warehouseData.upcomingHolidays.length;i++){
+                    let entry = warehouseData.upcomingHolidays[i];
+                    wcHours.push({
+                        "type": "TextBlock",
+                        "text": entry.holidayName + ' ' + entry.holidayDate + ' ' + entry.holidayCode,
+                        "size": "small",
+                        "weight":"regular",
+                        "spacing": "none"
+                    });
+                }
+            }
+
+            if (warehouseData.pharmacyHours) {
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": "\n",
+                    "size": "small",
+                    "weight":"regular",
+                    "spacing": "none"
+                });
+
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": "Pharmacy Hours",
+                    "size": "small",
+                    "weight":"bolder",
+                    "spacing": "none"
+                });
+    
+                for(var i=0;i<warehouseData.pharmacyHours.length;i++){
+                    wcHours.push({
+                        "type": "TextBlock",
+                        "text": warehouseData.pharmacyHours[i],
+                        "size": "small",
+                        "weight":"regular",
+                        "spacing": "none"
+                    });
+                }
+            }
+
+            if (warehouseData.gasStationHours) {
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": "\n",
+                    "size": "small",
+                    "weight":"regular",
+                    "spacing": "none"
+                });
+
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": "Gas Station Hours",
+                    "size": "small",
+                    "weight":"bolder",
+                    "spacing": "none"
+                });
+    
+                for(var i=0;i<warehouseData.gasStationHours.length;i++){
+                    let entry = warehouseData.gasStationHours[i];
+                    wcHours.push({
+                        "type": "TextBlock",
+                        "text": entry.title + entry.time,
+                        "size": "small",
+                        "weight":"regular",
+                        "spacing": "none"
+                    });
+                }
+            }
+
+            if (warehouseData.tireCenterHours) {
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": "\n",
+                    "size": "small",
+                    "weight":"regular",
+                    "spacing": "none"
+                });
+
+                wcHours.push({
+                    "type": "TextBlock",
+                    "text": "Tire Center Hours",
+                    "size": "small",
+                    "weight":"bolder",
+                    "spacing": "none"
+                });
+    
+                for(var i=0;i<warehouseData.tireCenterHours.length;i++){
+                    let entry = warehouseData.tireCenterHours[i];
+                    wcHours.push({
+                        "type": "TextBlock",
+                        "text": entry.title + entry.time,
+                        "size": "small",
+                        "weight":"regular",
+                        "spacing": "none"
+                    });
+                }
             }
 
             let wcServices = warehouseCard.content.body[3].columns[1].items;
 
-            for(var i=0;i<warehouseData.coreServices.length;i++){
+            if (warehouseData.coreServices) {
+                for(var i=0;i<warehouseData.coreServices.length;i++){
+                    wcServices.push({
+                        "type": "TextBlock",
+                        "text": warehouseData.coreServices[i].localizedName,
+                        "size": "small",
+                        "weight":"regular",
+                        "spacing": "none"
+                    });
+                }
+            }
+            if (warehouseData.specialtyDepartments) {
                 wcServices.push({
                     "type": "TextBlock",
-                    "text": warehouseData.coreServices[i].localizedName,
+                    "text": "\n",
                     "size": "small",
                     "weight":"regular",
                     "spacing": "none"
-                })
+                });
+
+                wcServices.push({
+                    "type": "TextBlock",
+                    "text": "Departments",
+                    "size": "small",
+                    "weight":"bolder",
+                    "spacing": "none"
+                });
+
+                for(var i=0;i<warehouseData.specialtyDepartments.length;i++){
+                    wcServices.push({
+                        "type": "TextBlock",
+                        "text": warehouseData.specialtyDepartments[i].localizedName,
+                        "size": "small",
+                        "weight":"regular",
+                        "spacing": "none"
+                    });
+                }
             }
     
             await stepContext.context.sendActivity({ attachments: [warehouseCard] });
@@ -171,7 +288,6 @@ class WarehouseDialog extends CancelAndHelpDialog {
      * @returns {String} the param
      */
     static getParam(location) {
-        console.log('location is ', location);
         if (/^\d{1,4}$/.test(location)) {
             return "warehouseNumber";
         }
@@ -186,9 +302,9 @@ class WarehouseDialog extends CancelAndHelpDialog {
         }
     }
 
-    isAmbiguous(timex) {
-        const timexPropery = new TimexProperty(timex);
-        return !timexPropery.types.has('definite');
+    static getLocation(luisDetails) {
+        const locationArray = luisDetails && luisDetails.location;
+        return Array.isArray(locationArray) ? locationArray[0] : undefined;
     }
 }
 
