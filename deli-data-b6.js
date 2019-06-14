@@ -1,7 +1,7 @@
 var menudata = [{
-    "date": "6/17/2019",
+    "date": "6/10/2019",
     "weekDay": "Monday",
-    "location": "Menu for Building #6",
+    "location": "Menu for Building #2367",
     "menuItems": [
         {
             "type": "Breakfast",
@@ -53,9 +53,9 @@ var menudata = [{
         }
     ]
 },{ 
-    "date": "6/18/2019",
+    "date": "6/11/2019",
     "weekDay": "Tuesday",
-    "location": "Menu for Building #6",
+    "location": "Menu for Building #2367",
     "menuItems": [
         {
             "type": "Breakfast",
@@ -107,9 +107,9 @@ var menudata = [{
         }
     ]
 },{ 
-    "date": "6/19/2019",
+    "date": "6/12/2019",
     "weekDay": "Wednesday",
-    "location": "Menu for Building #6",
+    "location": "Menu for Building #2367",
     "menuItems": [
         {
             "type": "Breakfast",
@@ -157,9 +157,9 @@ var menudata = [{
         }
     ]
 },{
-    "date": "6/20/2019",
+    "date": "6/13/2019",
     "weekDay": "Thursday",
-    "location": "Menu for Building #6",
+    "location": "Menu for Building #2367",
     "menuItems": [
         {
             "type": "Breakfast",
@@ -211,9 +211,9 @@ var menudata = [{
         }
     ]
 },{
-    "date": "6/21/2019",
+    "date": "6/14/2019",
     "weekDay": "Friday",
-    "location": "Menu for Building #6",
+    "location": "Menu for Building #2#2367",
     "menuItems": [
         {
             "type": "Breakfast",

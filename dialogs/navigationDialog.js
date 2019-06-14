@@ -42,8 +42,7 @@ class NavigationDialog extends CancelAndHelpDialog {
       // chat, prompt the user, which ends up in stepContext.result
       // in the next step.
       return await stepContext.prompt(TEXT_PROMPT, {
-        prompt:
-          "Where would you like to go? (6601, <name>'s desk, bathroom, etc.)"
+        prompt: 'Where would you like to go? (6601-6618)'
       });
     }
     return await stepContext.next(luisDetails);
